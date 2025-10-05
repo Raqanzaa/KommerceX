@@ -4,7 +4,7 @@
   },
   "scripts": {
     "backend": "cd services && php artisan serve --host=127.0.0.1 --port=8000",
-    "frontend": "cd frontend && npm run dev",
+    "frontend": "cd ui && npm run dev",
     "dev": "concurrently \"npm run backend\" \"npm run frontend\"",
     "install:all": "concurrently \"npm run install:backend\" \"npm run install:frontend\"",
     "install:backend": "cd services && composer install && cp .env.example .env && php artisan key:generate",

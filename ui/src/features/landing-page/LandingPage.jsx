@@ -8,7 +8,7 @@ import Footer from "./components/Footer";
 
 export default function LandingPage() {
   return (
-    <div className="overflow-hidden">
+    <div>
       <Navbar />
       <main>
         <HeroSection />
