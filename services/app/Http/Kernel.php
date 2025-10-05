@@ -28,6 +28,9 @@ class Kernel extends HttpKernel
      *
      * @var array<string, array<int, class-string|string>>
      */
+    protected $routeMiddleware = [
+        'isAdmin' => \App\Http\Middleware\IsAdmin::class,
+    ];
 
     protected $middlewareGroups = [
         'api' => [

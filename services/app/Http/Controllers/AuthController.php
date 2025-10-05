@@ -36,8 +36,7 @@ class AuthController extends Controller
         if (! $user || ! Hash::check($r->password, $user->password)) {
             return response()->json(['message' => 'Invalid credentials'], 401);
         }
-        // revoke previous tokens if you want:
-        $user->tokens()->delete();
+        // $user->tokens()->delete();
         $token = $user->createToken('api-token')->plainTextToken;
         return response()->json(['user' => $user, 'token' => $token]);
     }

@@ -9,6 +9,11 @@ use Illuminate\Support\Facades\Storage;
 
 class ProductController extends Controller
 {
+    public function __construct()
+    {
+        $this->middleware(['auth:sanctum', 'isAdmin'])->only(['store', 'update', 'destroy']);
+    }
+
     /**
      * Display a listing of the resource.
      */
@@ -20,24 +25,25 @@ class ProductController extends Controller
     }
 
     /**
-     * Show the form for creating a new resource.
-     */
-    public function create()
-    {
-        //
-    }
-
-    /**
      * Store a newly created resource in storage.
      */
     public function store(Request $r)
     {
+        // pastikan user login dan role admin
+        $user = $r->user();
+        if (!$user || $user->role !== 'admin') {
+            return response()->json([
+                'message' => 'Anda tidak memiliki izin untuk menambahkan produk.'
+            ], 403);
+        }
+
         $r->validate([
             'name' => 'required|string',
             'price' => 'required|numeric|min:0',
             'stock' => 'required|integer|min:0',
             'image' => 'nullable|image|max:5120'
         ]);
+
         $data = $r->only(['name', 'description', 'price', 'stock', 'is_active']);
         $data['slug'] = Str::slug($r->name) . '-' . Str::random(4);
 
@@ -47,8 +53,13 @@ class ProductController extends Controller
         }
 
         $product = Product::create($data);
-        return response()->json($product, 201);
+
+        return response()->json([
+            'message' => 'Produk berhasil ditambahkan.',
+            'data' => $product
+        ], 201);
     }
+
     /**
      * Display the specified resource.
      */
@@ -57,27 +68,50 @@ class ProductController extends Controller
         return response()->json($product);
     }
 
-    /**
-     * Show the form for editing the specified resource.
-     */
-    public function edit(Product $product)
-    {
-        //
-    }
-
-    /**
-     * Update the specified resource in storage.
-     */
     public function update(Request $request, Product $product)
     {
-        //
+        // hanya admin
+        $user = $request->user();
+        if (!$user || $user->role !== 'admin') {
+            return response()->json(['message' => 'Tidak memiliki izin.'], 403);
+        }
+
+        $request->validate([
+            'name' => 'sometimes|string',
+            'price' => 'sometimes|numeric|min:0',
+            'stock' => 'sometimes|integer|min:0',
+            'is_active' => 'sometimes|boolean',
+            'image' => 'nullable|image|max:5120',
+        ]);
+
+        $data = $request->only(['name', 'description', 'price', 'stock', 'is_active']);
+
+        if ($request->hasFile('image')) {
+            if ($product->image) {
+                Storage::disk('public')->delete($product->image);
+            }
+            $data['image'] = $request->file('image')->store('products', 'public');
+        }
+
+        $product->update($data);
+
+        return response()->json(['message' => 'Produk berhasil diperbarui.', 'data' => $product]);
     }
 
-    /**
-     * Remove the specified resource from storage.
-     */
-    public function destroy(Product $product)
+    public function destroy(Request $request, Product $product)
     {
-        //
+        // hanya admin
+        $user = $request->user();
+        if (!$user || $user->role !== 'admin') {
+            return response()->json(['message' => 'Tidak memiliki izin.'], 403);
+        }
+
+        if ($product->image) {
+            Storage::disk('public')->delete($product->image);
+        }
+
+        $product->delete();
+
+        return response()->json(['message' => 'Produk berhasil dihapus.']);
     }
 }
