@@ -180,5 +180,3 @@ Silakan fork repository ini dan buat branch baru untuk fitur atau perbaikan Anda
 ## 📄 Lisensi
 
 Proyek ini dilisensikan di bawah [MIT License](LICENSE).
-
-```
