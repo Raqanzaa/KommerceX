@@ -182,8 +182,3 @@ Silakan fork repository ini dan buat branch baru untuk fitur atau perbaikan Anda
 Proyek ini dilisensikan di bawah [MIT License](LICENSE).
 
 ```
-
----
-
-Apakah kamu ingin saya tambahkan bagian **contoh environment lengkap** (untuk `.env` backend dan frontend) dan **contoh output folder build (production)** juga di bawahnya? Itu bisa membuat README-mu lebih “developer-friendly” saat rilis versi produksi.
-```
