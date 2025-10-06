@@ -1,5 +1,4 @@
 
-````markdown
 # 🛍️ E-Commerce App (Laravel & React)
 
 Selamat datang di aplikasi **E-Commerce Full-Stack**.  
