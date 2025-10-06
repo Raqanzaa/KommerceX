@@ -3,11 +3,15 @@
     "concurrently": "^9.2.1"
   },
   "scripts": {
-    "backend": "cd services && php artisan serve --host=127.0.0.1 --port=8000",
+    "// --- MENJALANKAN SERVER DEVELOPMENT ---": "",
+    "backend": "cd services && php artisan serve",
     "frontend": "cd ui && npm run dev",
-    "dev": "concurrently \"npm run backend\" \"npm run frontend\"",
-    "install:all": "concurrently \"npm run install:backend\" \"npm run install:frontend\"",
-    "install:backend": "cd services && composer install && cp .env.example .env && php artisan key:generate",
-    "install:frontend": "cd frontend && npm install"
+    "dev": "concurrently -n \"backend,frontend\" --kill-others-on-fail \"npm run backend\" \"npm run frontend\"",
+    "// --- INSTALASI SEMUA DEPENDENSI ---": "",
+    "install:all": "concurrently -n \"backend,frontend\" \"npm run install:backend\" \"npm run install:frontend\"",
+    "install:backend": "cd services && composer install && cp .env.example .env && php artisan key:generate && php artisan migrate --seed && php artisan storage:link",
+    "install:frontend": "cd ui && npm install",
+    "// --- SCRIPT BANTUAN ---": "",
+    "postinstall": "npm run install:all"
   }
 }
