@@ -68,24 +68,34 @@ class ProductController extends Controller
         return response()->json($product);
     }
 
-    public function update(Request $request, Product $product)
+    public function update(Request $request, $id)
     {
-        // hanya admin
+        // --- Hanya admin yang boleh update ---
         $user = $request->user();
         if (!$user || $user->role !== 'admin') {
             return response()->json(['message' => 'Tidak memiliki izin.'], 403);
         }
 
+        // --- Validasi input ---
         $request->validate([
-            'name' => 'sometimes|string',
+            'name' => 'sometimes|string|max:255',
+            'description' => 'nullable|string',
             'price' => 'sometimes|numeric|min:0',
-            'stock' => 'sometimes|integer|min:0',
+            'stock' => 'sometimes|numeric|min:0',
             'is_active' => 'sometimes|boolean',
-            'image' => 'nullable|image|max:5120',
+            'image' => 'nullable|image|max:5120', // Maks 5MB
         ]);
 
+        // --- Cari produk berdasarkan ID ---
+        $product = Product::find($id);
+        if (!$product) {
+            return response()->json(['message' => 'Produk tidak ditemukan.'], 404);
+        }
+
+        // --- Ambil data yang akan diperbarui ---
         $data = $request->only(['name', 'description', 'price', 'stock', 'is_active']);
 
+        // --- Jika ada file gambar baru, hapus gambar lama ---
         if ($request->hasFile('image')) {
             if ($product->image) {
                 Storage::disk('public')->delete($product->image);
@@ -93,25 +103,37 @@ class ProductController extends Controller
             $data['image'] = $request->file('image')->store('products', 'public');
         }
 
+        // --- Update produk ---
         $product->update($data);
 
-        return response()->json(['message' => 'Produk berhasil diperbarui.', 'data' => $product]);
+        return response()->json([
+            'message' => 'Produk berhasil diperbarui.',
+            'data' => $product
+        ]);
     }
 
-    public function destroy(Request $request, Product $product)
+
+    public function destroy(Request $request, $id)
     {
-        // hanya admin
+        // ... (logic otorisasi Anda, jika ada) ...
         $user = $request->user();
         if (!$user || $user->role !== 'admin') {
             return response()->json(['message' => 'Tidak memiliki izin.'], 403);
         }
 
+        // Cari produk secara manual
+        $product = Product::find($id);
+
+        // JIKA PRODUK TIDAK DITEMUKAN, beri respons 404
+        if (!$product) {
+            return response()->json(['message' => 'Produk tidak ditemukan atau sudah dihapus.'], 404);
+        }
+
+        // Jika ditemukan, lanjutkan proses hapus
         if ($product->image) {
             Storage::disk('public')->delete($product->image);
         }
-
         $product->delete();
-
         return response()->json(['message' => 'Produk berhasil dihapus.']);
     }
 }
