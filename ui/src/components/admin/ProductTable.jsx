@@ -1,5 +1,7 @@
+import { useCurrency } from "../../hooks/useCurrency";
 const ProductTable = ({ products, onEdit, onDelete }) => {
   const API_URL_BASE = import.meta.env.VITE_API_BASE_URL.replace("/api", "");
+  const { formatIDR } = useCurrency();
 
   return (
     <div className="overflow-x-auto bg-white rounded-lg shadow">
@@ -47,7 +49,7 @@ const ProductTable = ({ products, onEdit, onDelete }) => {
               </td>
               <td className="px-5 py-5 border-b border-gray-200 text-sm">
                 <p className="text-gray-900 whitespace-no-wrap">
-                  ${parseFloat(product.price).toFixed(2)}
+                  {formatIDR(product.price)}
                 </p>
               </td>
               <td className="px-5 py-5 border-b border-gray-200 text-sm">

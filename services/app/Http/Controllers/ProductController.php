@@ -44,20 +44,43 @@ class ProductController extends Controller
             'image' => 'nullable|image|max:5120'
         ]);
 
-        $data = $r->only(['name', 'description', 'price', 'stock', 'is_active']);
+        $data = $r->only(['name', 'description', 'price', 'stock']);
         $data['slug'] = Str::slug($r->name) . '-' . Str::random(4);
+
+        // PERBAIKI: Handle is_active dengan benar
+        if ($r->has('is_active')) {
+            $data['is_active'] = filter_var($r->is_active, FILTER_VALIDATE_BOOLEAN);
+        } else {
+            $data['is_active'] = true; // default value
+        }
 
         if ($r->hasFile('image')) {
             $path = $r->file('image')->store('products', 'public');
             $data['image'] = $path;
         }
 
-        $product = Product::create($data);
+        // DEBUG: Tambahkan log untuk melihat data sebelum create
+        // \Log::info('Creating product with data:', $data);
 
-        return response()->json([
-            'message' => 'Produk berhasil ditambahkan.',
-            'data' => $product
-        ], 201);
+        try {
+            $product = Product::create($data);
+
+            // DEBUG: Log setelah create
+            // \Log::info('Product created successfully:', $product->toArray());
+
+            // Reload product untuk memastikan data fresh dari database
+            $product->refresh();
+
+            return response()->json([
+                'message' => 'Produk berhasil ditambahkan.',
+                'data' => $product
+            ], 201);
+        } catch (\Exception $e) {
+            // \Log::error('Product creation failed:', ['error' => $e->getMessage()]);
+            return response()->json([
+                'message' => 'Gagal menambahkan produk: ' . $e->getMessage()
+            ], 500);
+        }
     }
 
     /**

@@ -65,22 +65,17 @@ const AdminDashboardPage = () => {
   });
 
   // Handlers
-  const handleFormSubmit = (formData) => {
-    const data = new FormData();
-    Object.keys(formData).forEach((key) => {
-      // Handle file input separately
-      if (key === "image" && formData[key][0]) {
-        data.append(key, formData[key][0]);
-      } else if (key !== "image") {
-        data.append(key, formData[key]);
-      }
-    });
-    // The backend expects `_method` for updates when using FormData
-    if (editingProduct) {
-      data.append("_method", "PUT");
-      updateMutation.mutate({ id: editingProduct.id, data });
+  const handleFormSubmit = (formData, productId) => {
+    // `formData` di sini sudah merupakan objek FormData yang benar dari ProductForm
+    // `productId` adalah undefined jika ini adalah 'create', atau berisi ID jika 'edit'
+
+    if (productId) {
+      // Ini adalah mode edit
+      formData.append("_method", "PUT");
+      updateMutation.mutate({ id: productId, data: formData });
     } else {
-      createMutation.mutate(data);
+      // Ini adalah mode create
+      createMutation.mutate(formData);
     }
   };
 
@@ -133,7 +128,7 @@ const AdminDashboardPage = () => {
         title={editingProduct ? "Edit Product" : "Add New Product"}
       >
         <ProductForm
-          onSubmit={handleFormSubmit}
+          onSubmit={handleFormSubmit} // onSubmit sekarang sudah cocok
           initialData={editingProduct}
           isSubmitting={createMutation.isPending || updateMutation.isPending}
         />

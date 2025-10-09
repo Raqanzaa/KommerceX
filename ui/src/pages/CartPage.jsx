@@ -1,6 +1,7 @@
 import { useCart } from "../hooks/useCart";
 import Spinner from "../components/common/Spinner";
 import Button from "../components/common/Button";
+import { useCurrency } from "../hooks/useCurrency"; 
 
 const CartPage = () => {
   const {
@@ -32,6 +33,8 @@ const CartPage = () => {
     }
   };
 
+  const { formatIDR } = useCurrency();
+
   return (
     <div className="bg-white p-6 rounded-lg shadow-md">
       <h1 className="text-2xl font-bold mb-4">Your Shopping Cart</h1>
@@ -46,7 +49,9 @@ const CartPage = () => {
               />
               <div>
                 <p className="font-semibold">{item.product.name}</p>
-                <p className="text-sm text-gray-600">${item.product.price}</p>
+                <p className="text-sm text-gray-600">
+                  {formatIDR(item.product.price)}
+                </p>
               </div>
             </div>
             <div className="flex items-center space-x-4">
@@ -68,7 +73,9 @@ const CartPage = () => {
         ))}
       </div>
       <div className="mt-6 text-right">
-        <p className="text-xl font-bold">Total: ${cart.total.toFixed(2)}</p>
+        <p className="text-xl font-bold">
+          Total: {formatIDR(cart.total)}
+        </p>
         <Button onClick={checkout} disabled={isCheckingOut} className="mt-4">
           {isCheckingOut ? "Processing..." : "Proceed to Checkout"}
         </Button>
